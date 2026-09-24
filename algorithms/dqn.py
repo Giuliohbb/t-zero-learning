@@ -123,7 +123,14 @@ class ReplayBuffer:
 
         """
         # ==================== YOUR CODE HERE (Part 1a) ====================
-        raise NotImplementedError("Implement ReplayBuffer.add")
+        self.observations[self.pos] = obs
+        self.next_observations[self.pos] = next_obs
+        self.actions[self.pos, 0] = action
+        self.rewards[self.pos, 0] = reward
+        self.dones[self.pos, 0] = done
+
+        self.pos = (self.pos + 1) % self.capacity 
+        self.size = min(self.size + 1, self.capacity)  
         # ==================================================================
 
     def sample(self, batch_size: int) -> Batch:
@@ -135,7 +142,15 @@ class ReplayBuffer:
 
         """
         # ==================== YOUR CODE HERE (Part 1b) ====================
-        raise NotImplementedError("Implement ReplayBuffer.sample")
+        idx = np.random.randint(0, self.size, size=batch_size) 
+
+        return Batch(
+            observations=torch.as_tensor(self.observations[idx], device=self.device),
+            next_observations=torch.as_tensor(self.next_observations[idx], device=self.device),
+            actions=torch.as_tensor(self.actions[idx], dtype=torch.int64, device=self.device),
+            rewards=torch.as_tensor(self.rewards[idx], device=self.device),
+            dones=torch.as_tensor(self.dones[idx], device=self.device),
+        )
         # ==================================================================
 
 
@@ -144,7 +159,11 @@ def compute_td_targets(target_network, batch: Batch, gamma: float) -> torch.Tens
 
     """
     # ===================== YOUR CODE HERE (Part 2) =====================
-    raise NotImplementedError("Implement compute_td_targets")
+    target_q_values = target_network(batch.next_observations)  # shape (B, num_actions)
+
+    max_target_q = target_q_values.max(dim=1)[0] 
+    td_target = batch.rewards[:, 0] + gamma * (1 - batch.dones[:, 0]) * max_target_q  
+    return td_target
     # ===================================================================
 
 
