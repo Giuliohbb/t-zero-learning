@@ -1,0 +1,35 @@
+# Parte 4 — run exploratório (não resolve). Base: ppo_lunarlander.yml.
+# Config final com 4 épocas em vez de 10 (ablação das épocas).
+
+algorithm: ppo
+env_id: LunarLander-v3
+seed: 1
+cuda: false             # CPU is plenty for this env
+total_timesteps: 2000000
+num_envs: 16             # parallel environments -> batch = num_envs * num_steps
+
+track: true             # log metrics to Weights & Biases (set WANDB_PROJECT in .env)
+capture_video: true     # record a video during the final evaluation
+save_model: true        # write model.pt + run a final evaluation
+checkpoint_every: 0
+
+network: DiscreteActorCritic   # your network from the A2C assignment
+network_kwargs:                # passed to its constructor — see its signature
+  activation: Tanh
+  hidden_layers_size: 64
+
+ppo:
+  learning_rate: 1.0e-3
+  anneal_lr: true
+  num_steps: 512        # rollout length per env
+  gamma: 0.99
+  gae_lambda: 0.95
+  num_minibatches: 32    # minibatch = batch / num_minibatches
+  update_epochs: 4      # passes over each rollout
+  norm_adv: true
+  clip_coef: 0.2
+  clip_vloss: true
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  target_kl: null

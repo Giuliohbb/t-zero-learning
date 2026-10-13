@@ -1,0 +1,27 @@
+# Parte 5 — tentativa de ajuste do A2C: learning_rate 7e-4 -> 2.5e-4.
+
+algorithm: a2c
+env_id: LunarLander-v3
+seed: 1
+cuda: false             # CPU is plenty for this env
+total_timesteps: 2000000 # mesmo orçamento do PPO
+num_envs: 8             # parallel actors stepped in lockstep
+
+track: true             # log metrics to Weights & Biases (set WANDB_PROJECT in .env)
+capture_video: true     # record a video during the final evaluation
+save_model: true        # write model.pt + run a final evaluation
+checkpoint_every: 0
+
+network: DiscreteActorCritic   # a class from networks/__init__.py
+network_kwargs:                # passed to its constructor — see its signature
+  activation: Tanh
+  hidden_layers_size: 64
+
+a2c:
+  learning_rate: 2.5e-4
+  num_steps: 5
+  gamma: 0.99
+  vf_coef: 0.5
+  ent_coef: 0.01
+  max_grad_norm: 0.5
+  use_baseline: true
