@@ -1,0 +1,35 @@
+# Parte 4 — variante do final, descartada. Base: ppo_lunarlander_final.yml.
+# Mudança: gamma 0.99 -> 0.999 e gae_lambda 0.95 -> 0.98.
+
+algorithm: ppo
+env_id: LunarLander-v3
+seed: 1
+cuda: false             # CPU is plenty for this env
+total_timesteps: 2000000
+num_envs: 16            # batch = 16 * 512 = 8192
+
+track: true             # log metrics to Weights & Biases (set WANDB_PROJECT in .env)
+capture_video: true     # record a video during the final evaluation
+save_model: true        # write model.pt + run a final evaluation
+checkpoint_every: 0
+
+network: DiscreteActorCritic   # your network from the A2C assignment
+network_kwargs:                # passed to its constructor — see its signature
+  activation: Tanh
+  hidden_layers_size: 64
+
+ppo:
+  learning_rate: 1.0e-3
+  anneal_lr: true
+  num_steps: 512        # rollout length per env
+  gamma: 0.999
+  gae_lambda: 0.98
+  num_minibatches: 32   # minibatch = 8192 / 32 = 256
+  update_epochs: 10     # passes over each rollout
+  norm_adv: true
+  clip_coef: 0.2
+  clip_vloss: true
+  ent_coef: 0.01
+  vf_coef: 0.5
+  max_grad_norm: 0.5
+  target_kl: null
